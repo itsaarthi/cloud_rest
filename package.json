@@ -1,0 +1,24 @@
+{
+  "name": "client_rest",
+  "version": "1.0.0",
+  "description": "Client side Server",
+  "main": "apps.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsaarthi/client_rest.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/itsaarthi/client_rest/issues"
+  },
+  "homepage": "https://github.com/itsaarthi/client_rest#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.16.4"
+  }
+}
