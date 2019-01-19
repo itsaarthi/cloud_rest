@@ -1,5 +1,5 @@
 {
-  "name": "client_rest",
+  "name": "cloud_rest",
   "version": "1.0.0",
   "description": "Client side Server",
   "main": "apps.js",
