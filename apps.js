@@ -75,18 +75,29 @@ var db = require('./db'); // Use this when your using DB
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());
 var user = require('./user');
-console.log(user);
+//console.log(user);
 
 var fs = require('fs');
 
 app.post('/user/login',function(req,res){
-	if (req.body.user_name == conf.get('name') && req.body.password == conf.get('password') && req.body.mac == conf.get('mac')){
-	res.status(200).send("Login successfully ");
- }
- else{
- res.status(500).send("login Failed")	
- }
- 
+
+
+  user.find({},function (err, client) {
+    console.log("c",client);
+    console.log("mac",client[0].mac);
+    console.log("mac_req",req.body.mac);
+    if(err){
+      res.status(500).send("DBERR");
+    }
+    else{
+    if (client[0].mac == req.body.mac){
+      res.status(200).send("Login successfully ");
+    }
+    else{
+ res.status(500).send("login Failed") 
+     }
+   }
+   });
 })
 
 app.post('/user/register',function(req,res){
