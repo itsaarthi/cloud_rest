@@ -70,9 +70,12 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 const editJsonFile = require("edit-json-file");
 var conf = editJsonFile('conf.json');
+var db = require('./db'); // Use this when your using DB
 
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());
+var user = require('./user');
+console.log(user);
 
 var fs = require('fs');
 
@@ -94,6 +97,16 @@ app.post('/user/register',function(req,res){
  conf.set('password',req.body.password);
  conf.set('mac',req.body.mac);
  conf.save();
+ user.create({   
+        user_id          : req.body.user_name,
+        passowrd	 : req.body.password,
+        mac		 : req.body.mac  
+      }, 
+      function (err, Live) {
+        if (err){
+          return res.status(500).send("There was a problem adding the information to the database.");
+        }
+});
  res.status(200).send("Registration done for user");
 })
 
