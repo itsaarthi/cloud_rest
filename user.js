@@ -5,7 +5,8 @@ var UserSchema = new mongoose.Schema({
 	
    user_id        : String,
    password       : String,
-   mac           : String
+   mac            : String,
+   key			  : String
 	
 });
 mongoose.model('User', UserSchema);

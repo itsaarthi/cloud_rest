@@ -21,6 +21,9 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "edit-json-file": "^1.2.1",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "express-fileupload": "^1.1.1-alpha.3",
+    "mongoose": "^5.4.13",
+    "nodemailer": "^5.1.1"
   }
 }

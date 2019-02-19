@@ -67,6 +67,8 @@
 var express = require("express");
 var app = express();
 var bodyParser = require('body-parser');
+var nodemailer = require('nodemailer');
+var randomstring = require("randomstring");
 app.use(bodyParser.json());
 const editJsonFile = require("edit-json-file");
 var conf = editJsonFile('conf.json');
@@ -76,6 +78,17 @@ const fileUpload = require('express-fileupload');
 app.use(fileUpload());
 var user = require('./user');
 //console.log(user);
+
+const netIface = require('network-interfaces');
+
+const options = {
+  internal: false, // boolean: only acknowledge internal or external addresses (undefined: both)
+  ipVersion: 4     // integer (4 or 6): only acknowledge addresses of this IP address family (undefined: both)
+};
+
+
+const netDev = netIface.getInterface(options);
+var key = randomstring.generate(5);
 
 var fs = require('fs');
 
@@ -104,14 +117,16 @@ app.post('/user/register',function(req,res){
 	if (!req.body.user_name || !req.body.password ){
 	res.status(500).send("Registration Failed ");
  }
+ console.log("mail",req.body.mail_id);
  conf.set('name',req.body.user_name);
  conf.set('password',req.body.password);
  conf.set('mac',req.body.mac);
  conf.save();
  user.create({   
         user_id          : req.body.user_name,
-        passowrd	 : req.body.password,
-        mac		 : req.body.mac  
+        password	       : req.body.password,
+        mac		           : req.body.mac, 
+        key              : key 
       }, 
       function (err, Live) {
         if (err){
