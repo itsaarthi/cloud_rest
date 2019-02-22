@@ -95,7 +95,7 @@ var fs = require('fs');
 app.post('/user/login',function(req,res){
 
 
-  user.find({},function (err, client) {
+  user.find({mac:req.body.mac,key:req.body.key},function (err, client) {
     console.log("c",client);
     console.log("mac",client[0].mac);
     console.log("mac_req",req.body.mac);
@@ -114,6 +114,7 @@ app.post('/user/login',function(req,res){
 })
 
 app.post('/user/register',function(req,res){
+  console.log("req",req.body);
 	if (!req.body.user_name || !req.body.password ){
 	res.status(500).send("Registration Failed ");
  }
