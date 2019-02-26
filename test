@@ -1,0 +1,27 @@
+ let transporter = nodemailer.createTransport({
+  service: 'Zoho',
+  host: 'smtp.zoho.com',
+  secure: 'true',
+  port: '465',
+  auth: {
+    type: 'Basic Auth',
+    user: 'csindhu@spido.in',
+    pass:'8124937475'
+  }
+});
+
+ let mailOptions = {
+    from: 'csindhu@spido.in',
+    to: 'sindhuja.chinraj@infynect.com',
+    subject: 'Message from Sindhuja',
+    text: key
+  };
+console.log("mailopt",mailOptions)
+  transporter.sendMail(mailOptions, function(e, r) {
+  if (e) {
+    console.log(e);}
+  else {
+    console.log(r);
+      }
+  transporter.close();
+  });
