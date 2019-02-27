@@ -94,8 +94,8 @@ var fs = require('fs');
 
 app.post('/user/login',function(req,res){
 
-
-  user.find({mac:req.body.mac,key:req.body.key},function (err, client) {
+ console.log("req",req.body)
+  user.find({key:req.body.key},function (err, client) {
     console.log("c",client);
     console.log("mac",client[0].mac);
     console.log("mac_req",req.body.mac);
@@ -103,7 +103,7 @@ app.post('/user/login',function(req,res){
       res.status(500).send("DBERR");
     }
     else{
-    if (client[0].mac == req.body.mac){
+    if ( client[0].mac == req.body.mac  ){
       res.status(200).send("Login successfully ");
     }
     else{
@@ -123,6 +123,35 @@ app.post('/user/register',function(req,res){
  conf.set('password',req.body.password);
  conf.set('mac',req.body.mac);
  conf.save();
+  
+ let transporter = nodemailer.createTransport({
+  service: 'Zoho',
+  host: 'smtp.zoho.com',
+  secure: 'true',
+  port: '465',
+  auth: {
+    type: 'Basic Auth',
+    user: 'csindhu@spido.in',
+    pass:'8124937475'
+  }
+});
+
+ let mailOptions = {
+    from: 'csindhu@spido.in',
+    to: req.body.mail_id,
+    subject: 'Message from M2M Cloud',
+    text: key
+  };
+
+console.log("mailopt",mailOptions)
+  transporter.sendMail(mailOptions, function(e, r) {
+  if (e) {
+    console.log(e);}
+  else {
+    console.log(r);
+      }
+  transporter.close();
+  });
  user.create({   
         user_id          : req.body.user_name,
         password	       : req.body.password,
