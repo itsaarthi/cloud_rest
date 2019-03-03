@@ -1,70 +1,6 @@
-// var express = require('express');
-// var bodyParser = require('body-parser');
-// var cors = require('cors');
-// var app = express();
-// var port = 8002;
-// var http = require('http');
-// //var db = require('./db'); // Use this when your using DB
-// global.__root   = __dirname + '/';
-// console.log("status");
-// var whitelist = ['https://portal.infynect.com', 'http://localhost'];
-// var bodyParser = require('body-parser');
-// app.use(bodyParser.json());
-
-// var corsOptionsDelegate = function(req, cb) {
-//   var corsOptions;
-//   if(whitelist.indexOf(req.header('Origin')) !== -1) {
-//           corsOptions = { origin: true }
-//   } else {
-//           corsOptions = { origin: false }
-//   }
-//   cb(null, corsOptions);
-// }
-
-// app.use('/api', cors(corsOptionsDelegate), function(req, res, next) {
-//   next();
-// });
-
-// app.get('/api', function (req, res) {
-//   res.status(200).send('API works.');
-// });
-
-// /*var UserController = require(__root + 'user/userController');
-// app.use('/api/users', UserController);*/
-
-// app.post('/api/user/register',function(req,res){
-// 	console.log("req",req.body.user_name);
-//     console.log("files",req.files);
-//     res.status(200).send('success!');
-// })
-
-// app.post('/api/user/login',function(req,res){
-// 	console.log("req",req.body.user_name);
-//     console.log("files",req.files);
-//     res.status(200).send('success!');
-// })
-
-// app.post('/cli',function(req,res){
-//         console.log("req",req.body);
-//         console.log("files",req.files);
-//         /*fs.writeFileSync("/etc/ec/nuclix/nginx/ssl/livye.com/key.pem",req.files$
-//         fs.writeFileSync("/etc/ec/nuclix/nginx/ssl/livye.com/cert.pem",req.file$*/
-//         res.status(200).send("success");
-// })
-
-
-// app.post('/cli',function(req,res){
-//         console.log("req",req.body.user_name);
-//         console.log("files",req.files);
-// /*      fs.writeFileSync("/etc/ec/nuclix/nginx/ssl/livye.com/key.pem",req.files$
-//         fs.writeFileSync("/etc/ec/nuclix/nginx/ssl/livye.com/cert.pem",req.file$
-//         res.status(200).send("success"); */
-// })
-
-// app.listen(8002)
-// module.exports = app;
-
+global.__root   = __dirname + '/';
 var express = require("express");
+var fs=require("fs");
 var app = express();
 var bodyParser = require('body-parser');
 var nodemailer = require('nodemailer');
@@ -73,7 +9,8 @@ app.use(bodyParser.json());
 const editJsonFile = require("edit-json-file");
 var conf = editJsonFile('conf.json');
 var db = require('./db'); // Use this when your using DB
-
+var cert = require(__root+'cert/certController')
+var exec = require('child_process').exec;
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());
 var user = require('./user');
@@ -86,11 +23,18 @@ const options = {
   ipVersion: 4     // integer (4 or 6): only acknowledge addresses of this IP address family (undefined: both)
 };
 
-
+console.log("cert",cert);
 const netDev = netIface.getInterface(options);
-var key = randomstring.generate(5);
 
 var fs = require('fs');
+
+if(!fs.existsSync("ca-crt.pem")){
+    exec('./ca.sh');
+}
+if(!fs.existsSync('server-crt.pem')){
+    exec('./server.sh');
+}
+
 
 app.post('/user/login',function(req,res){
 
@@ -103,7 +47,7 @@ app.post('/user/login',function(req,res){
       res.status(500).send("DBERR");
     }
     else{
-    if ( client[0].mac == req.body.mac  ){
+    if ( client[0].mac == req.body.mac && client[0].password == req.body.password ){
       res.status(200).send("Login successfully ");
     }
     else{
@@ -114,15 +58,28 @@ app.post('/user/login',function(req,res){
 })
 
 app.post('/user/register',function(req,res){
+
+  var key = randomstring.generate(5);
   console.log("req",req.body);
 	if (!req.body.user_name || !req.body.password ){
 	res.status(500).send("Registration Failed ");
  }
- console.log("mail",req.body.mail_id);
- conf.set('name',req.body.user_name);
- conf.set('password',req.body.password);
- conf.set('mac',req.body.mac);
- conf.save();
+ 
+
+fs.writeFileSync('client-csr.pem',req.body.csr,function(err){
+    if(err) return;
+  });
+  fs.writeFileSync('client.cnf',req.body.cnf,function(err){
+    if(err) return;
+  });
+
+ exec("chmod 777 client.cnf client-csr.pem");
+  exec('./sign.sh', function(err,stdout,stderr){
+
+  var client_cert = fs.readFileSync('client-crt.pem').toString();
+  var ca_crt      = fs.readFileSync('ca-crt.pem').toString();
+  
+
   
  let transporter = nodemailer.createTransport({
   service: 'Zoho',
@@ -143,7 +100,6 @@ app.post('/user/register',function(req,res){
     text: key
   };
 
-console.log("mailopt",mailOptions)
   transporter.sendMail(mailOptions, function(e, r) {
   if (e) {
     console.log(e);}
@@ -163,7 +119,8 @@ console.log("mailopt",mailOptions)
           return res.status(500).send("There was a problem adding the information to the database.");
         }
 });
- res.status(200).send("Registration done for user");
+ res.status(200).send({cert : client_cert,ca_crt:ca_crt});
 })
+  });
 
 app.listen(8002);
