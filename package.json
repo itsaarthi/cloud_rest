@@ -26,6 +26,7 @@
     "mongoose": "^5.4.13",
     "network-interfaces": "^1.1.0",
     "nodemailer": "^5.1.1",
-    "randomstring": "^1.1.5"
+    "randomstring": "^1.1.5",
+    "save": "^2.3.3"
   }
 }

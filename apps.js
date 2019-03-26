@@ -9,7 +9,7 @@ app.use(bodyParser.json());
 const editJsonFile = require("edit-json-file");
 var conf = editJsonFile('conf.json');
 var db = require('./db'); // Use this when your using DB
-var cert = require(__root+'cert/certController')
+//var cert = require(__root+'cert/certController')
 var exec = require('child_process').exec;
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());
@@ -23,7 +23,7 @@ const options = {
   ipVersion: 4     // integer (4 or 6): only acknowledge addresses of this IP address family (undefined: both)
 };
 
-console.log("cert",cert);
+//console.log("cert",cert);
 const netDev = netIface.getInterface(options);
 
 var fs = require('fs');
